@@ -1,5 +1,6 @@
 local composer = require("composer")
 local scene = composer.newScene()
+local text_BF, text_Morcego, text_abelha
 
 local forwardButton
 
@@ -11,7 +12,19 @@ local function onNextPage(self, event)
     end
 end
 
-
+local function onObjectTouch( self, event )
+    if ( event.phase == "began" ) then
+        print( "Touch event began on: " .. self.id )
+        if self.id == "abelha" then
+            text_abelha.isVisible = not text_abelha.isVisible
+        elseif self.id == "Morcego" then
+            text_Morcego.isVisible = not text_Morcego.isVisible
+        elseif self.id == "BF" then
+            text_BF.isVisible = not text_BF.isVisible
+        end
+    end
+    return true
+end
 
 function scene:create(event)
     local sceneGroup = self.view
@@ -35,37 +48,46 @@ function scene:create(event)
     text.y = display.contentHeight * 2/14
     sceneGroup:insert(text)
 
-    local text_abelha = display.newImage(sceneGroup, "src/assets/textos/text_abelha.png")
+    text_abelha = display.newImage(sceneGroup, "src/assets/textos/text_abelha.png")
     text_abelha.x = display.contentWidth * 2/4
     text_abelha.y = display.contentHeight * 11.3/14
     text_abelha.isVisible = false
     sceneGroup:insert(text_abelha)
-
+    
     local abelha = display.newImage(sceneGroup, "src/assets/animais/abelha_2.png")
+    abelha.id = "abelha"
     abelha.x = display.contentWidth * 1/4
     abelha.y = display.contentHeight * 11.3/14
+    abelha.touch = onObjectTouch
+    abelha:addEventListener("touch", abelha)
     sceneGroup:insert(abelha)
 
-    local text_Morcego = display.newImage(sceneGroup, "src/assets/textos/text_Morcego.png")
+    text_Morcego = display.newImage(sceneGroup, "src/assets/textos/text_Morcego.png")
     text_Morcego.x = display.contentWidth * 2/4
     text_Morcego.y = display.contentHeight * 2.5/14
     text_Morcego.isVisible = false
     sceneGroup:insert(text_Morcego)
-
+    
     local morcego = display.newImage(sceneGroup, "src/assets/animais/Morcego.png")
+    morcego.id = "Morcego"
     morcego.x = display.contentWidth * 0.8/4
     morcego.y = display.contentHeight * 2.5/14
+    morcego.touch = onObjectTouch
+    morcego:addEventListener("touch", morcego)
     sceneGroup:insert(morcego)
 
-    local text_BF = display.newImage(sceneGroup, "src/assets/textos/text_BF.png")
+    text_BF = display.newImage(sceneGroup, "src/assets/textos/text_BF.png")
     text_BF.x = display.contentWidth * 2/4
     text_BF.y = display.contentHeight * 6/10
     text_BF.isVisible = false
     sceneGroup:insert(text_BF)
-
+    
     local Beija_Flor = display.newImage(sceneGroup, "src/assets/animais/BF.png")
+    Beija_Flor.id = "BF"
     Beija_Flor.x = display.contentWidth * 3.1/4
     Beija_Flor.y = display.contentHeight * 6/10
+    Beija_Flor.touch = onObjectTouch
+    Beija_Flor:addEventListener("touch", Beija_Flor)
     sceneGroup:insert(Beija_Flor)
 
     local Bf_flor = display.newImage(sceneGroup, "src/assets/animais/BF_Flor.png")
