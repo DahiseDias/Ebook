@@ -33,8 +33,8 @@ end
 
 function scene:create(event)
     physics.start()
-    physics.setGravity( 0, 10 )
-    physics.setDrawMode("hybrid")
+    physics.setGravity( 0, 0 )
+    -- physics.setDrawMode("hybrid")
     local sceneGroup = self.view
 
     local limit_left = display.newRect(-40,0, 40,display.contentHeight)
@@ -127,8 +127,14 @@ local force = 10
 
 local function onTilt( event )
     print("onTilt")
-    polem.x = polem.x + event.xGravity * force
-    polem.y = -polem.y + event.yGravity * force
+    local xGravity = event.xGravity
+    local zGravity = event.yGravity
+
+    local moveX = xGravity * 10  -- multiplicador para controlar a velocidade de movimento
+    local moveY = -zGravity * 10 -- multiplicador para controlar a velocidade de movimento
+
+    polem.x = polem.x + moveX
+    polem.y = polem.y + moveY
  
 end
   
