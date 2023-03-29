@@ -1,5 +1,6 @@
 local composer = require("composer")
 local scene = composer.newScene()
+local physics = require("physics")
 
 local forwardButton, backButton ,manga_aberta, caroco
 
@@ -27,6 +28,15 @@ local function onDragObject( self, event )
         caroco.isVisible = true
     end
     return true
+end
+
+local function listener( event )
+    if event.isShake then
+        print( "The device is being shaken!" )
+        physics.start()
+        physics.setGravity( 0, 35 )
+        physics.addBody(caroco, "dynamic", {density=1.6, friction=0.5, bounce=0.2})
+    end
 end
 
 function scene:create(event)
@@ -99,6 +109,7 @@ function scene:show(event)
         forwardButton:addEventListener("touch", forwardButton)
         backButton.touch = onBackPage
         backButton:addEventListener("touch", backButton)
+        Runtime:addEventListener( "accelerometer", listener )
     end
 end
 
@@ -108,6 +119,9 @@ function scene:hide(event)
 
     if (phase == "will") then
         forwardButton:removeEventListener("touch", forwardButton)
+        Runtime:removeEventListener( "accelerometer", listener )
+
+        physics.stop()
     elseif (phase == "did") then
 
     end

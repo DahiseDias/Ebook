@@ -26,6 +26,7 @@ local function collision(self, event)
         event.other.x = self.x
         event.other.y = self.y
         physics.stop()
+        Runtime:removeEventListener( "accelerometer", onTilt )
     
     end)
     
@@ -145,6 +146,7 @@ function scene:show(event)
     if (phase == "will") then
         
     elseif (phase == "did") then
+        physics.start()
         display.setDefault('background', 95/255, 143/255, 91/255)
         forwardButton.touch = onNextPage
         forwardButton:addEventListener("touch", forwardButton)
@@ -161,6 +163,7 @@ function scene:hide(event)
     if (phase == "will") then
         display.setDefault('background', 0, 0, 0)
         forwardButton:removeEventListener("touch", forwardButton)
+        physics.stop()
     elseif (phase == "did") then
 
     end
