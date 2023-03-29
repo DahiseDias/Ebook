@@ -1,7 +1,7 @@
 local composer = require("composer")
 local scene = composer.newScene()
 
-local forwardButton
+local forwardButton, backButton
 local sceneGroup
 local text_masculino, text_feminino, text_Ovario
 local seta_feminino, seta_masculino, seta_Ovario
@@ -9,6 +9,14 @@ local seta_feminino, seta_masculino, seta_Ovario
 local function onNextPage(self, event)
     if event.phase == "ended" or event.phase == "cancelled" then
         composer.gotoScene("src.pages.page_5", "fade")
+
+        return true
+    end
+end
+
+local function onBackPage(self, event)
+    if event.phase == "ended" or event.phase == "cancelled" then
+        composer.gotoScene("src.pages.page_3", "fade")
 
         return true
     end
@@ -23,18 +31,11 @@ local function onDragObject( self, event )
     return true
 end
 
-local function listener( event )
-    if event.isShake then
-        print( "The device is being shaken!" )
-    end
-     
-    return true
-end
 
 local function onObjectTouch( self, event )
     if ( event.phase == "began" ) then
         print( "Touch event began on: " .. self.id )
-        if self.id == "androceu" then
+        if self.id == "androceu" or self.id == "text_masc_detector" then
             text_masculino.isVisible = not text_masculino.isVisible
             seta_masculino.isVisible = not seta_masculino.isVisible
         elseif self.id == "text_fem_detector" then
@@ -63,7 +64,6 @@ function scene:create(event)
     text.y = display.contentHeight * 2 / 14
     sceneGroup:insert(text)
 
-
     local flor_pelada = display.newImage(sceneGroup, "src/assets/plantas/flor_pelada.png")
     flor_pelada.x = display.contentWidth * 1 / 2
     flor_pelada.y = display.contentHeight - 200
@@ -85,22 +85,6 @@ function scene:create(event)
     androceu_right.touch = onObjectTouch
     androceu_right:addEventListener("touch", androceu_right)
     sceneGroup:insert(androceu_right)
-
-    local ovario_capa = display.newImage(sceneGroup, "src/assets/plantas/ovario_capa.png")
-    ovario_capa.id = "ovario_capa"
-    ovario_capa.x = display.contentWidth * 1 / 2 - 12.1
-    ovario_capa.y = display.contentHeight * 3.4 / 5 - 3
-    ovario_capa.touch = onDragObject
-    ovario_capa:addEventListener("touch", ovario_capa)
-    sceneGroup:insert(ovario_capa)
-
-    local petala = display.newImage(sceneGroup, "src/assets/plantas/petala.png")
-    petala.id = "petala"
-    petala.x = display.contentWidth * 1/2
-    petala.y = display.contentHeight * 3.63/5
-    petala.touch = onDragObject
-    petala:addEventListener("touch", petala)
-    sceneGroup:insert(petala)
 
     text_feminino = display.newImage(sceneGroup, "src/assets/textos/feminina.png")
     text_feminino.x = display.contentWidth * 2/8
@@ -145,6 +129,13 @@ function scene:create(event)
     forwardButton:scale(0.1, 0.1)
     sceneGroup:insert(forwardButton)
 
+    backButton = display.newImageRect('src/assets/buttons/btn_left.png', display.contentWidth,
+    display.contentWidth)
+    backButton.x = display.contentWidth * 0.1
+    backButton.y = display.contentHeight * 0.9
+    backButton:scale(0.1, 0.1)
+    sceneGroup:insert(backButton)
+
     local text_fem_detector = display.newCircle(0,0, 30)
     text_fem_detector.id = "text_fem_detector"
     text_fem_detector.x = display.contentWidth * 1 / 2 - 12.1
@@ -155,6 +146,17 @@ function scene:create(event)
     text_fem_detector.touch = onObjectTouch
     text_fem_detector:addEventListener("touch", text_fem_detector)
     sceneGroup:insert(text_fem_detector)
+
+    local text_masc_detector = display.newCircle(0,0, 30)
+    text_masc_detector.id = "text_masc_detector"
+    text_masc_detector.x = display.contentWidth * 1 / 2 + 80
+    text_masc_detector.y = display.contentHeight * 3/ 5 
+    text_masc_detector:setFillColor(1,1,0, 0.5 )
+    text_masc_detector:setStrokeColor( 1, 1, 0)
+    text_masc_detector.strokeWidth = 5
+    text_masc_detector.touch = onObjectTouch
+    text_masc_detector:addEventListener("touch", text_masc_detector)
+    sceneGroup:insert(text_masc_detector)
 
 
     local text_ov_detector = display.newCircle(0,0, 30)
@@ -167,6 +169,32 @@ function scene:create(event)
     text_ov_detector.touch = onObjectTouch
     text_ov_detector:addEventListener("touch", text_ov_detector)
     sceneGroup:insert(text_ov_detector)
+
+    local ovario_capa = display.newImage(sceneGroup, "src/assets/plantas/ovario_capa.png")
+    ovario_capa.id = "ovario_capa"
+    ovario_capa.x = display.contentWidth * 1 / 2 - 12.1
+    ovario_capa.y = display.contentHeight * 3.4 / 5 - 3
+    ovario_capa.touch = onDragObject
+    ovario_capa:addEventListener("touch", ovario_capa)
+    sceneGroup:insert(ovario_capa)
+
+    local petala = display.newImage(sceneGroup, "src/assets/plantas/petala.png")
+    petala.id = "petala"
+    petala.x = display.contentWidth * 1/2
+    petala.y = display.contentHeight * 3.63/5
+    petala.touch = onDragObject
+    petala:addEventListener("touch", petala)
+    sceneGroup:insert(petala)
+
+    local text2 = display.newImage(sceneGroup, "src/assets/textos/text_page4_2.png")
+    text2.x = display.contentWidth * 1 / 2
+    text2.y = display.contentHeight * 11 / 14
+    sceneGroup:insert(text2)
+
+    local text3 = display.newImage(sceneGroup, "src/assets/textos/text_page4_3.png")
+    text3.x = display.contentWidth * 1 / 2
+    text3.y = display.contentHeight * 4 / 14
+    sceneGroup:insert(text3)
 end
 
 function scene:show(event)
@@ -179,7 +207,9 @@ function scene:show(event)
     elseif (phase == "did") then
         forwardButton.touch = onNextPage
         forwardButton:addEventListener("touch", forwardButton)
-        Runtime:addEventListener( "accelerometer", listener )
+        backButton.touch = onBackPage
+        backButton:addEventListener("touch", backButton)
+        
     end
 end
 

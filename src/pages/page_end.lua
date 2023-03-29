@@ -1,11 +1,19 @@
 local composer = require("composer")
 local scene = composer.newScene()
 
-local forwardButton
+local forwardButton, backButton
 
 local function onNextPage(self, event)
     if event.phase == "ended" or event.phase == "cancelled" then
         -- composer.gotoScene("src.pages.page1", "fade")
+
+        return true
+    end
+end
+
+local function onBackPage(self, event)
+    if event.phase == "ended" or event.phase == "cancelled" then
+        composer.gotoScene("src.pages.page_8", "fade")
 
         return true
     end
@@ -50,6 +58,13 @@ function scene:create(event)
     forwardButton.y = display.contentHeight * 0.9
     forwardButton:scale(0.1, 0.1)
     sceneGroup:insert(forwardButton)
+
+    backButton = display.newImageRect('src/assets/buttons/btn_left.png', display.contentWidth,
+    display.contentWidth)
+    backButton.x = display.contentWidth * 0.1
+    backButton.y = display.contentHeight * 0.9
+    backButton:scale(0.1, 0.1)
+    sceneGroup:insert(backButton)
 end
 
 function scene:show(event)
@@ -61,6 +76,8 @@ function scene:show(event)
     elseif (phase == "did") then
         forwardButton.touch = onNextPage
         forwardButton:addEventListener("touch", forwardButton)
+        backButton.touch = onBackPage
+        backButton:addEventListener("touch", backButton)
     end
 end
 

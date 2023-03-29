@@ -2,7 +2,7 @@ local composer = require("composer")
 local physics = require("physics")
 local scene = composer.newScene()
 
-local forwardButton,polem
+local forwardButton,polem, backButton
 
 local function onNextPage(self, event)
     if event.phase == "ended" or event.phase == "cancelled" then
@@ -12,10 +12,29 @@ local function onNextPage(self, event)
     end
 end
 
+local function onBackPage(self, event)
+    if event.phase == "ended" or event.phase == "cancelled" then
+        composer.gotoScene("src.pages.page_6", "fade")
+
+        return true
+    end
+end
+
+local function collision(self, event)
+    print("collision")
+    timer.performWithDelay(1, function()
+        event.other.x = self.x
+        event.other.y = self.y
+        physics.stop()
+    
+    end)
+    
+end
 
 function scene:create(event)
     physics.start()
-    physics.setGravity( 0, 0 )
+    physics.setGravity( 0, 10 )
+    physics.setDrawMode("hybrid")
     local sceneGroup = self.view
 
     local limit_left = display.newRect(-40,0, 40,display.contentHeight)
@@ -48,7 +67,13 @@ function scene:create(event)
     background:scale(3,3)
     sceneGroup:insert(background)
 
-    display.setDefault('background', 95/255, 143/255, 91/255)
+
+    local obs_detector = display.newRect(display.contentWidth * 1/2, display.contentHeight * 1/2 -50, 200, 50)
+    physics.addBody( obs_detector, "static",{ density=0.5, friction=0.1, bounce=0.4},
+    { box={ halfWidth=30, halfHeight=60, x=-80, y=60 } },
+    { box={ halfWidth=30, halfHeight=60, x=80, y=60 } })
+    obs_detector:setFillColor(95/255, 143/255, 91/255)
+    sceneGroup:insert(obs_detector)
 
     local obstaculo = display.newImage(sceneGroup, "src/assets/plantas/ovario_obstaculo.png")
     obstaculo.x = display.contentWidth * 1/2
@@ -59,14 +84,17 @@ function scene:create(event)
     ovario.x = display.contentWidth * 1/2
     ovario.y = display.contentHeight * 1/2 + 50
     ovario:scale(0.7, 0.7)
+    ovario.collision = collision
+    ovario:addEventListener("collision", ovario)
+    physics.addBody( ovario, "static",{ density=0.5, friction=0.1, bounce=0.4} )
     sceneGroup:insert(ovario)
 
     polem = display.newImage(sceneGroup, "src/assets/plantas/Polem.png")
     polem.x = display.contentWidth * 1/2
     polem.y = 100
     -- ovario:scale(0.7, 0.7)
+    physics.addBody( polem, "dynamic",{ density=0.5, friction=0.1, bounce=0.4} )
     sceneGroup:insert(polem)
-    physics.addBody( polem, { density=0.1, friction=0.1, bounce=0.4} )
 
     local text = display.newImage(sceneGroup, "src/assets/textos/text_page7.png")
     text.x = display.contentWidth * 1/2
@@ -86,16 +114,21 @@ function scene:create(event)
     forwardButton:scale(0.1, 0.1)
     sceneGroup:insert(forwardButton)
 
+    backButton = display.newImageRect('src/assets/buttons/btn_left.png', display.contentWidth,
+    display.contentWidth)
+    backButton.x = display.contentWidth * 0.1
+    backButton.y = display.contentHeight * 0.9
+    backButton:scale(0.1, 0.1)
+    sceneGroup:insert(backButton)
+
 end
 
-local function onAccelerate( event )
-    print( event.name, event.xGravity, event.yGravity, event.zGravity )
-end
+local force = 10
 
 local function onTilt( event )
     print("onTilt")
-    polem.x = polem.x + event.xGravity
-    polem.y = polem.y + event.yGravity
+    polem.x = polem.x + event.xGravity * force
+    polem.y = -polem.y + event.yGravity * force
  
 end
   
@@ -106,8 +139,11 @@ function scene:show(event)
     if (phase == "will") then
         
     elseif (phase == "did") then
+        display.setDefault('background', 95/255, 143/255, 91/255)
         forwardButton.touch = onNextPage
         forwardButton:addEventListener("touch", forwardButton)
+        backButton.touch = onBackPage
+        backButton:addEventListener("touch", backButton)
         Runtime:addEventListener( "accelerometer", onTilt )
     end
 end
@@ -117,6 +153,7 @@ function scene:hide(event)
     local phase = event.phase
 
     if (phase == "will") then
+        display.setDefault('background', 0, 0, 0)
         forwardButton:removeEventListener("touch", forwardButton)
     elseif (phase == "did") then
 

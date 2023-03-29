@@ -1,7 +1,7 @@
 local composer = require("composer")
 local scene = composer.newScene()
 
-local forwardButton
+local forwardButton, backButton ,manga_aberta, caroco
 
 local function onNextPage(self, event)
     if event.phase == "ended" or event.phase == "cancelled" then
@@ -9,6 +9,24 @@ local function onNextPage(self, event)
 
         return true
     end
+end
+
+local function onBackPage(self, event)
+    if event.phase == "ended" or event.phase == "cancelled" then
+        composer.gotoScene("src.pages.page_7", "fade")
+
+        return true
+    end
+end
+
+local function onDragObject( self, event )
+    if ( event.phase == "moved" ) then
+        print( "Touch event moved on: " .. self.id )
+        self.isVisible = false
+        manga_aberta.isVisible = true
+        caroco.isVisible = true
+    end
+    return true
 end
 
 function scene:create(event)
@@ -22,13 +40,16 @@ function scene:create(event)
     sceneGroup:insert(background)
 
     local manga = display.newImage(sceneGroup, "src/assets/plantas/manga.png")
+    manga.id = "manga"
     manga.anchorX = 0
     manga.anchorY = 0
     manga.x = 0
     manga.y = 0
+    manga.touch = onDragObject
+    manga:addEventListener("touch", manga)
     sceneGroup:insert(manga)
 
-    local manga_aberta = display.newImage(sceneGroup, "src/assets/plantas/manga_aberta.png")
+    manga_aberta = display.newImage(sceneGroup, "src/assets/plantas/manga_aberta.png")
     manga_aberta.anchorX = 0
     manga_aberta.anchorY = 0
     manga_aberta.x = 0
@@ -36,7 +57,7 @@ function scene:create(event)
     manga_aberta.isVisible = false
     sceneGroup:insert(manga_aberta)
 
-    local caroco = display.newImage(sceneGroup, "src/assets/plantas/manga_caroço.png")
+    caroco = display.newImage(sceneGroup, "src/assets/plantas/manga_caroço.png")
     caroco.x = display.contentWidth * 1.05/2
     caroco.y = display.contentHeight * 8.22/14
     caroco.isVisible = false
@@ -46,7 +67,6 @@ function scene:create(event)
     text.x = display.contentWidth * 1/2
     text.y = display.contentHeight * 2/14
     sceneGroup:insert(text)
-
 
     local text2 = display.newImage(sceneGroup, "src/assets/textos/text_page8_2.png")
     text2.x = display.contentWidth * 1/2
@@ -59,6 +79,13 @@ function scene:create(event)
     forwardButton.y = display.contentHeight * 0.9
     forwardButton:scale(0.1, 0.1)
     sceneGroup:insert(forwardButton)
+
+    backButton = display.newImageRect('src/assets/buttons/btn_left.png', display.contentWidth,
+    display.contentWidth)
+    backButton.x = display.contentWidth * 0.1
+    backButton.y = display.contentHeight * 0.9
+    backButton:scale(0.1, 0.1)
+    sceneGroup:insert(backButton)
 end
 
 function scene:show(event)
@@ -70,6 +97,8 @@ function scene:show(event)
     elseif (phase == "did") then
         forwardButton.touch = onNextPage
         forwardButton:addEventListener("touch", forwardButton)
+        backButton.touch = onBackPage
+        backButton:addEventListener("touch", backButton)
     end
 end
 
