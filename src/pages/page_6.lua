@@ -3,10 +3,26 @@ local physics = require("physics")
 
 local scene = composer.newScene()
 
-local forwardButton, backButton, sensor_getPolem, sceneGroup, abelha, sensor_setPolem
+local forwardButton, backButton, sensor_getPolem, sceneGroup, abelha, sensor_setPolem, flor1, flor2, buttonSound,  softSound
+
+local buttonSoundOptions = {
+    channel = 1,
+    loops = 0,
+    duration = 1000,
+    fadein = 0
+}
+
+local softSoundOptions = {
+    channel = 1,
+    loops = 0,
+    duration = 700,
+    fadein = 0
+}
+
 
 local function onNextPage(self, event)
     if event.phase == "ended" or event.phase == "cancelled" then
+        audio.play(buttonSound, buttonSoundOptions)
         composer.gotoScene("src.pages.page_7", "fade")
 
         return true
@@ -23,6 +39,7 @@ end
 
 local function GetPolem(self, event)
     if event.other.id == "GetPolem" and self.id == "abelha_default" then
+        audio.play(softSound, softSoundOptions)
         local x = abelha.x
         local y = abelha.y
         abelha:removeSelf()
@@ -34,15 +51,23 @@ local function GetPolem(self, event)
         abelha.touch = onDragObject
         abelha:addEventListener("touch", abelha)
 
+        flor1:removeSelf()
+        flor1 = display.newImage(sceneGroup, "src/assets/plantas/flor_completa.png")
+        flor1.x = display.contentWidth * 1 / 2 - 350
+        flor1.y = display.contentHeight * 1 / 2 - 100
+        flor1:rotate(90)
+        flor1:scale(0.7, 0.7)
+        sceneGroup:insert(flor1)
+
         timer.performWithDelay(1, function()
             abelha.collision = GetPolem
             abelha:addEventListener("collision", abelha)
             physics.addBody(abelha, { radius = 50 })
             sceneGroup:insert(abelha)
         end)
-
     elseif event.other.id == "SetPolem" and self.id == "abelha_polem" then
         print("SetPolem")
+        audio.play(softSound, softSoundOptions)
         local x = abelha.x
         local y = abelha.y
         abelha:removeSelf()
@@ -53,6 +78,14 @@ local function GetPolem(self, event)
         abelha:scale(0.2, 0.2)
         abelha.touch = onDragObject
         abelha:addEventListener("touch", abelha)
+
+        flor2:removeSelf()
+        flor2 = display.newImage(sceneGroup, "src/assets/plantas/flor_completa_Polem.png")
+        flor2.x = display.contentWidth * 4 / 6
+        flor2.y = display.contentHeight * 15 / 16
+        flor2:scale(0.7, 0.7)
+        sceneGroup:insert(flor2)
+
         timer.performWithDelay(1, function()
             abelha.collision = GetPolem
             abelha:addEventListener("collision", abelha)
@@ -65,6 +98,7 @@ end
 
 local function onBackPage(self, event)
     if event.phase == "ended" or event.phase == "cancelled" then
+        audio.play(buttonSound, buttonSoundOptions)
         composer.gotoScene("src.pages.page_5", "fade")
 
         return true
@@ -73,6 +107,8 @@ end
 
 function scene:create(event)
     sceneGroup = self.view
+    buttonSound = audio.loadSound("src/assets/sounds/button_click.wav")
+    softSound = audio.loadSound("src/assets/sounds/soft_impact.mp3")
     physics.start()
     physics.setGravity(0, 0)
     -- physics.setDrawMode("hybrid")
@@ -83,27 +119,26 @@ function scene:create(event)
     background.y = 0
     sceneGroup:insert(background)
 
-   
 
-    sensor_getPolem = display.newRect(display.contentWidth * 1 / 2  - 250, display.contentHeight * 1 / 2 - 100, 50, 50)
+    sensor_getPolem = display.newRect(display.contentWidth * 1 / 2 - 250, display.contentHeight * 1 / 2 - 100, 50, 50)
     sensor_getPolem.id = "GetPolem"
-    physics.addBody(sensor_getPolem, "static", { isSensor = true , radius=130})
+    
     sceneGroup:insert(sensor_getPolem)
 
-    local flor1 = display.newImage(sceneGroup, "src/assets/plantas/flor_completa.png")
+    flor1 = display.newImage(sceneGroup, "src/assets/plantas/flor_completa_Polem.png")
     flor1.x = display.contentWidth * 1 / 2 - 350
     flor1.y = display.contentHeight * 1 / 2 - 100
     flor1:rotate(90)
     flor1:scale(0.7, 0.7)
     sceneGroup:insert(flor1)
 
-    
+
     sensor_setPolem = display.newRect(display.contentWidth * 4 / 6, display.contentHeight * 14 / 16, 50, 50)
     sensor_setPolem.id = "SetPolem"
-    physics.addBody(sensor_setPolem, "static", { isSensor = true,  radius=130 })
+    
     sceneGroup:insert(sensor_setPolem)
 
-    local flor2 = display.newImage(sceneGroup, "src/assets/plantas/flor_completa.png")
+    flor2 = display.newImage(sceneGroup, "src/assets/plantas/flor_completa.png")
     flor2.x = display.contentWidth * 4 / 6
     flor2.y = display.contentHeight * 15 / 16
     flor2:scale(0.7, 0.7)
@@ -111,14 +146,7 @@ function scene:create(event)
 
     abelha = display.newImage(sceneGroup, "src/assets/animais/abelha.png")
     abelha.id = "abelha_default"
-    abelha.x = display.contentWidth * 4 / 6
-    abelha.y = 100
     abelha:scale(0.2, 0.2)
-    abelha.touch = onDragObject
-    abelha:addEventListener("touch", abelha)
-    abelha.collision = GetPolem
-    abelha:addEventListener("collision", abelha)
-    physics.addBody(abelha, { radius = 50 })
     sceneGroup:insert(abelha)
 
     forwardButton = display.newImageRect('src/assets/buttons/btn_right.png', display.contentWidth,
@@ -139,7 +167,6 @@ function scene:create(event)
     text.x = display.contentWidth * 1 / 2
     text.y = display.contentHeight * 2 / 14
     sceneGroup:insert(text)
-    
 end
 
 function scene:show(event)
@@ -149,7 +176,18 @@ function scene:show(event)
     if (phase == "will") then
 
     elseif (phase == "did") then
+        physics.start()
+        physics.setGravity(0, 0)
         forwardButton.touch = onNextPage
+        abelha.x = display.contentWidth * 4 / 6
+        abelha.y = 100
+        abelha.touch = onDragObject
+        abelha:addEventListener("touch", abelha)
+        abelha.collision = GetPolem
+        abelha:addEventListener("collision", abelha)
+        physics.addBody(abelha, { radius = 50 })
+        physics.addBody(sensor_setPolem, "static", { isSensor = true, radius = 130 })
+        physics.addBody(sensor_getPolem, "static", { isSensor = true, radius = 130 })
         forwardButton:addEventListener("touch", forwardButton)
         backButton.touch = onBackPage
         backButton:addEventListener("touch", backButton)

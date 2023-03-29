@@ -2,10 +2,18 @@ local composer = require("composer")
 local physics = require("physics")
 local scene = composer.newScene()
 
-local forwardButton,polem, backButton
+local forwardButton,polem, backButton, buttonSound, collision_sound
+
+local buttonSoundOptions = {
+    channel = 1,
+    loops = 0,
+    duration = 1000,
+    fadein = 0
+}
 
 local function onNextPage(self, event)
     if event.phase == "ended" or event.phase == "cancelled" then
+        audio.play(buttonSound, buttonSoundOptions)
         composer.gotoScene("src.pages.page_8", "fade")
         
         return true
@@ -14,6 +22,7 @@ end
 
 local function onBackPage(self, event)
     if event.phase == "ended" or event.phase == "cancelled" then
+        audio.play(buttonSound, buttonSoundOptions)
         composer.gotoScene("src.pages.page_6", "fade")
 
         return true
@@ -23,10 +32,12 @@ end
 local function collision(self, event)
     print("collision")
     timer.performWithDelay(1, function()
+        audio.play(collision_sound, buttonSoundOptions)
         event.other.x = self.x
         event.other.y = self.y
         physics.stop()
         Runtime:removeEventListener( "accelerometer", onTilt )
+        polem:setLinearVelocity(0, 0)
     
     end)
     
@@ -37,6 +48,9 @@ function scene:create(event)
     physics.setGravity( 0, 0 )
     -- physics.setDrawMode("hybrid")
     local sceneGroup = self.view
+
+    buttonSound = audio.loadSound("src/assets/sounds/button_click.wav")
+    collision_sound = audio.loadSound("src/assets/sounds/level-passed.mp3")
 
     local limit_left = display.newRect(-40,0, 40,display.contentHeight)
     limit_left.anchorX = 0
@@ -91,8 +105,7 @@ function scene:create(event)
     sceneGroup:insert(ovario)
 
     polem = display.newImage(sceneGroup, "src/assets/plantas/Polem.png")
-    polem.x = display.contentWidth * 1/2
-    polem.y = 100
+
     -- ovario:scale(0.7, 0.7)
     physics.addBody( polem, "dynamic",{ density=0.5, friction=0.1, bounce=0.4} )
     sceneGroup:insert(polem)
@@ -146,6 +159,8 @@ function scene:show(event)
     if (phase == "will") then
         
     elseif (phase == "did") then
+        polem.x = display.contentWidth * 1/2
+        polem.y = 100
         physics.start()
         display.setDefault('background', 95/255, 143/255, 91/255)
         forwardButton.touch = onNextPage

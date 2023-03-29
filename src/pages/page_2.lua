@@ -2,10 +2,26 @@ local composer = require("composer")
 local transition = require("transition")
 local scene = composer.newScene()
 
-local forwardButton, dente_leao, dente_leao_pelado, rect, rect2, rect3, rect4, backButton
+local forwardButton, dente_leao, dente_leao_pelado, rect, rect2, rect3, rect4, backButton, buttonSound
+
+
+local buttonSoundOptions = {
+    channel = 1,
+    loops = 0,
+    duration = 1000,
+    fadein = 0
+}
+
+local background_sound_Options = {
+    channel = 1,
+    loops = -1,
+    --duration = 1000,
+    fadein = 0
+}
 
 local function onNextPage(self, event)
     if event.phase == "ended" or event.phase == "cancelled" then
+        audio.play(buttonSound, buttonSoundOptions)
         composer.gotoScene("src.pages.page_3", "fade")
 
         return true
@@ -14,8 +30,8 @@ end
 
 local function onBackPage(self, event)
     if event.phase == "ended" or event.phase == "cancelled" then
+        audio.play(buttonSound, buttonSoundOptions)
         composer.gotoScene("src.pages.page_1", "fade")
-
         return true
     end
 end
@@ -23,6 +39,7 @@ end
 local function listener(event)
     if event.isShake then
         print("The device is being shaken!")
+        audio.play(BackgroundSound, background_sound_Options)
         dente_leao_pelado.isVisible = true
         dente_leao.isVisible = false
         Runtime:addEventListener("enterFrame", moveWave)
@@ -33,27 +50,43 @@ local direction = false
 
 function moveWave()
     local rotate_angle = 0.5
+    if rect.x > display.contentWidth then
+        rect.x = -100
+        rect.y = 140
+    end
+    if rect2.x > display.contentWidth then
+        rect2.x = -50
+        rect2.y = 200
+    end
+    if rect3.x > display.contentWidth then
+        rect3.x = -80
+        rect3.y = 330
+    end
+    if rect4.x > display.contentWidth then
+        rect4.x = -50
+        rect4.y = 520
+    end
     if not direction then
         timer.performWithDelay(2000, function()
-            rect:translate(0.6, 0.3)
+            rect:translate(2, 0.3)
             rect:rotate(rotate_angle)
-            rect2:translate(0.7, 0.3)
+            rect2:translate(2.7, 0.3)
             rect2:rotate(rotate_angle + 0.1)
-            rect3:translate(0.9, 0.3)
+            rect3:translate(2.9, 0.3)
             rect3:rotate(-rotate_angle)
-            rect4:translate(1, 0.3 - 0.1)
+            rect4:translate(2.4, 0.3 - 0.1)
             rect4:rotate(rotate_angle)
             direction = true
         end)
     else
         timer.performWithDelay(2000, function()
-            rect:translate(0.6, -0.5 - 0.1)
+            rect:translate(2, -0.5 - 0.1)
             rect:rotate(rotate_angle)
-            rect2:translate(0.7, -0.5)
+            rect2:translate(2.7, -0.5)
             rect2:rotate(rotate_angle)
-            rect3:translate(0.9, -0.5 + 0.1)
+            rect3:translate(2.9, -0.5 + 0.1)
             rect3:rotate(-rotate_angle)
-            rect4:translate(1, -0.5)
+            rect4:translate(2.4, -0.5)
             rect4:rotate(rotate_angle)
             direction = false
         end)
@@ -63,6 +96,9 @@ end
 function scene:create(event)
     local sceneGroup = self.view
 
+    buttonSound = audio.loadSound("src/assets/sounds/button_click.wav")
+    BackgroundSound = audio.loadSound("src/assets/sounds/wind.mp3")
+
     local background = display.newImage(sceneGroup, "src/assets/background/Background_sky.png")
     background.anchorX = 0
     background.anchorY = 0
@@ -71,26 +107,18 @@ function scene:create(event)
     sceneGroup:insert(background)
 
     rect = display.newImage(sceneGroup, 'src/assets/plantas/Dente_de_leao_semente.png')
-    rect.x = -100
-    rect.y = 140
     rect:scale(0.5, 0.5)
     sceneGroup:insert(rect)
 
     rect2 = display.newImage('src/assets/plantas/Dente_de_leao_semente.png')
-    rect2.x = -50
-    rect2.y = 200
     rect2:scale(0.5, 0.5)
     sceneGroup:insert(rect)
 
     rect3 = display.newImage('src/assets/plantas/Dente_de_leao_semente.png')
-    rect3.x = -80
-    rect3.y = 330
     rect3:scale(0.5, 0.5)
     sceneGroup:insert(rect)
 
     rect4 = display.newImage('src/assets/plantas/Dente_de_leao_semente.png')
-    rect4.x = -50
-    rect4.y = 520
     rect4:scale(0.5, 0.5)
     sceneGroup:insert(rect)
 
@@ -112,7 +140,6 @@ function scene:create(event)
     dente_leao_pelado.anchorY = 0
     dente_leao_pelado.x = 0
     dente_leao_pelado.y = 0
-    dente_leao_pelado.isVisible = false
     sceneGroup:insert(dente_leao_pelado)
 
     local text2 = display.newImage(sceneGroup, "src/assets/textos/text_page2_2.png")
@@ -142,13 +169,23 @@ function scene:show(event)
 
     -- moveWave(rect, 300, 400, 50, 100, 0.5)
     if (phase == "will") then
+        rect.x = -100
+        rect.y = 140
+        rect2.x = -50
+        rect2.y = 200
+        rect3.x = -80
+        rect3.y = 330
+        rect4.x = -50
+        rect4.y = 520
 
-    elseif (phase == "did") then
+        dente_leao_pelado.isVisible = false
+        dente_leao.isVisible = true
         forwardButton.touch = onNextPage
         forwardButton:addEventListener("touch", forwardButton)
         backButton.touch = onBackPage
         backButton:addEventListener("touch", backButton)
         Runtime:addEventListener("accelerometer", listener)
+    elseif (phase == "did") then
     end
 end
 
@@ -157,8 +194,16 @@ function scene:hide(event)
     local phase = event.phase
 
     if (phase == "will") then
+        Runtime:removeEventListener("enterFrame", moveWave)
+        rect.x = -500
+        rect2.x = -500
+        rect3.x = -500
+        rect4.x = -500
+
         forwardButton:removeEventListener("touch", forwardButton)
         Runtime:removeEventListener("accelerometer", listener)
+
+        audio.stop()
     elseif (phase == "did") then
 
     end

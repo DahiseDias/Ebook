@@ -1,10 +1,24 @@
 local composer = require("composer")
 local scene = composer.newScene()
-local sceneGroup 
-local forwardButton, backButton
+local sceneGroup , flowerGroup
+local forwardButton, backButton, buttonSound, digSound
+
+local buttonSoundOptions = {
+    channel = 1,
+    loops = 0,
+    duration = 1000,
+    fadein = 0
+}
+local digSoundOptions = {
+    channel = 1,
+    loops = 0,
+    duration = 400,
+    fadein = 0
+}
 
 local function onNextPage(self, event)
     if event.phase == "ended" or event.phase == "cancelled" then
+        audio.play(buttonSound, buttonSoundOptions)
         composer.gotoScene("src.pages.page_4", "fade")
 
         return true
@@ -17,6 +31,7 @@ local flor_list = {"src/assets/plantas/flor1.png",
 
 local function onBackPage(self, event)
     if event.phase == "ended" or event.phase == "cancelled" then
+        audio.play(buttonSound, buttonSoundOptions)
         composer.gotoScene("src.pages.page_2", "fade")
         return true
     end
@@ -27,13 +42,14 @@ local contador = 1
 local function onObjectTouch( self, event )
 
     if ( event.phase == "began" ) then
+        audio.play(digSound, digSoundOptions)
         local image = flor_list[contador]
         print(image)
-        local flor = display.newImage(sceneGroup, image)
+        local flor = display.newImage(image)
         flor:scale(0.3, 0.3)
         flor.x = event.x
         flor.y = event.y
-        sceneGroup:insert(flor)
+        flowerGroup:insert(flor)
         if contador < 3 then
             contador = contador + 1
         else
@@ -45,6 +61,10 @@ end
 
 function scene:create(event)
     sceneGroup = self.view
+
+    flowerGroup = display.newGroup()
+    buttonSound = audio.loadSound("src/assets/sounds/button_click.wav")
+    digSound = audio.loadSound("src/assets/sounds/dig.mp3")
 
     local background = display.newImage(sceneGroup, "src/assets/background/Background_grass.png")
     background.anchorX = 0
@@ -87,12 +107,13 @@ function scene:show(event)
     local phase = event.phase
 
     if (phase == "will") then
-
-    elseif (phase == "did") then
+        flowerGroup = display.newGroup()
         forwardButton.touch = onNextPage
         forwardButton:addEventListener("touch", forwardButton)
         backButton.touch = onBackPage
         backButton:addEventListener("touch", backButton)
+
+    elseif (phase == "did") then
     end
 end
 
@@ -101,6 +122,7 @@ function scene:hide(event)
     local phase = event.phase
 
     if (phase == "will") then
+        display.remove(flowerGroup)
         forwardButton:removeEventListener("touch", forwardButton)
     elseif (phase == "did") then
 

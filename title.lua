@@ -1,10 +1,18 @@
 local composer = require("composer")
 local scene = composer.newScene()
 
-local forwardButton
+local forwardButton, buttonSound
+
+local buttonSoundOptions = {
+    channel = 1,
+    loops = 0,
+    duration = 1000,
+    fadein = 0
+}
 
 local function onNextPage(self, event)
     if event.phase == "ended" or event.phase == "cancelled" then
+        audio.play(buttonSound, buttonSoundOptions)
         composer.gotoScene("src.pages.page_1", "fade")
 
         return true
@@ -14,6 +22,7 @@ end
 function scene:create(event)
     local sceneGroup = self.view
 
+    buttonSound = audio.loadSound("src/assets/sounds/button_click.wav")
     local background = display.newImage(sceneGroup, "src/assets/background/Background_sky.png")
     background.anchorX = 0
     background.anchorY = 0

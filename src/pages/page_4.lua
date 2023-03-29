@@ -1,13 +1,22 @@
 local composer = require("composer")
 local scene = composer.newScene()
 
-local forwardButton, backButton
+local forwardButton, backButton, buttonSound
+
 local sceneGroup
-local text_masculino, text_feminino, text_Ovario
+local text_masculino, text_feminino, text_Ovario, ovario_capa, petala
 local seta_feminino, seta_masculino, seta_Ovario
+
+local buttonSoundOptions = {
+    channel = 1,
+    loops = 0,
+    duration = 1000,
+    fadein = 0
+}
 
 local function onNextPage(self, event)
     if event.phase == "ended" or event.phase == "cancelled" then
+        audio.play(buttonSound, buttonSoundOptions)
         composer.gotoScene("src.pages.page_5", "fade")
 
         return true
@@ -16,6 +25,7 @@ end
 
 local function onBackPage(self, event)
     if event.phase == "ended" or event.phase == "cancelled" then
+        audio.play(buttonSound, buttonSoundOptions)
         composer.gotoScene("src.pages.page_3", "fade")
 
         return true
@@ -51,6 +61,8 @@ end
 
 function scene:create(event)
     sceneGroup = self.view
+    buttonSound = audio.loadSound("src/assets/sounds/button_click.wav")
+  
 
     local background = display.newImage(sceneGroup, "src/assets/background/Background_sky.png")
     background.anchorX = 0
@@ -89,7 +101,6 @@ function scene:create(event)
     text_feminino = display.newImage(sceneGroup, "src/assets/textos/feminina.png")
     text_feminino.x = display.contentWidth * 2/8
     text_feminino.y = display.contentHeight * 2/5 + 20
-    text_feminino.isVisible = false
     sceneGroup:insert(text_feminino)
 
     seta_feminino = display.newImage(sceneGroup, "src/assets/textos/seta_feminino.png")
@@ -113,7 +124,6 @@ function scene:create(event)
     text_Ovario = display.newImage(sceneGroup, "src/assets/textos/Ovário.png")
     text_Ovario.x = display.contentWidth * 6.6/8
     text_Ovario.y = display.contentHeight * 3.63/5
-    text_Ovario.isVisible = false
     sceneGroup:insert(text_Ovario)
 
     seta_Ovario = display.newImage(sceneGroup, "src/assets/textos/seta_ovario.png")
@@ -170,20 +180,12 @@ function scene:create(event)
     text_ov_detector:addEventListener("touch", text_ov_detector)
     sceneGroup:insert(text_ov_detector)
 
-    local ovario_capa = display.newImage(sceneGroup, "src/assets/plantas/ovario_capa.png")
-    ovario_capa.id = "ovario_capa"
-    ovario_capa.x = display.contentWidth * 1 / 2 - 12.1
-    ovario_capa.y = display.contentHeight * 3.4 / 5 - 3
-    ovario_capa.touch = onDragObject
-    ovario_capa:addEventListener("touch", ovario_capa)
+    ovario_capa = display.newImage(sceneGroup, "src/assets/plantas/ovario_capa.png")
     sceneGroup:insert(ovario_capa)
 
-    local petala = display.newImage(sceneGroup, "src/assets/plantas/petala.png")
+    petala = display.newImage(sceneGroup, "src/assets/plantas/petala.png")
     petala.id = "petala"
-    petala.x = display.contentWidth * 1/2
-    petala.y = display.contentHeight * 3.63/5
-    petala.touch = onDragObject
-    petala:addEventListener("touch", petala)
+
     sceneGroup:insert(petala)
 
     local text2 = display.newImage(sceneGroup, "src/assets/textos/text_page4_2.png")
@@ -203,12 +205,30 @@ function scene:show(event)
 
     
     if (phase == "will") then
-        
-    elseif (phase == "did") then
+
+        text_feminino.isVisible = false
+        text_Ovario.isVisible = false
+        text_masculino.isVisible = false
+        seta_Ovario.isVisible = false
+        seta_feminino.isVisible = false
+        seta_masculino.isVisible = false
+        petala.x = display.contentWidth * 1/2
+        petala.y = display.contentHeight * 3.63/5
+        petala.touch = onDragObject
+        petala:addEventListener("touch", petala)
+
+        ovario_capa.id = "ovario_capa"
+        ovario_capa.x = display.contentWidth * 1 / 2 - 12.1
+        ovario_capa.y = display.contentHeight * 3.4 / 5 - 3
+        ovario_capa.touch = onDragObject
+        ovario_capa:addEventListener("touch", ovario_capa)
+
         forwardButton.touch = onNextPage
         forwardButton:addEventListener("touch", forwardButton)
         backButton.touch = onBackPage
         backButton:addEventListener("touch", backButton)
+        
+    elseif (phase == "did") then
         
     end
 end
@@ -219,6 +239,10 @@ function scene:hide(event)
 
     if (phase == "will") then
         forwardButton:removeEventListener("touch", forwardButton)
+        backButton:removeEventListener("touch", backButton)
+        petala:removeEventListener("touch", petala)
+        ovario_capa:removeEventListener("touch", ovario_capa)
+
     elseif (phase == "did") then
 
     end
