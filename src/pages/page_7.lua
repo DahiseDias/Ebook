@@ -31,17 +31,20 @@ local function onBackPage(self, event)
     end
 end
 
+local run = true
 
 local function onTilt( event )
-    print("onTilt")
-    local xGravity = event.xGravity
-    local zGravity = event.yGravity
-
-    local moveX = xGravity * 10  -- multiplicador para controlar a velocidade de movimento
-    local moveY = -zGravity * 10 -- multiplicador para controlar a velocidade de movimento
-
-    polem.x = polem.x + moveX
-    polem.y = polem.y + moveY
+    if run then
+        print("onTilt")
+        local xGravity = event.xGravity
+        local zGravity = event.yGravity
+        
+        local moveX = xGravity * 10  -- multiplicador para controlar a velocidade de movimento
+        local moveY = -zGravity * 10 -- multiplicador para controlar a velocidade de movimento
+        
+        polem.x = polem.x + moveX
+        polem.y = polem.y + moveY
+    end
  
 end
 
@@ -51,6 +54,7 @@ local function collision(self, event)
         audio.play(collision_sound, buttonSoundOptions)
         event.other.x = self.x
         event.other.y = self.y
+        run = false
         polem:setLinearVelocity(0, 0)
         physics.stop()
         Runtime:removeEventListener( "accelerometer", onTilt )
