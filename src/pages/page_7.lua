@@ -37,7 +37,6 @@ local function collision(self, event)
         audio.play(collision_sound, buttonSoundOptions)
         event.other.x = self.x
         event.other.y = self.y
-        physics.stop()
         polem:setLinearVelocity(0, 0)
     
     end)
