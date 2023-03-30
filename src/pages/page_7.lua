@@ -52,9 +52,9 @@ local function collision(self, event)
     print("collision")
     timer.performWithDelay(1, function()
         audio.play(collision_sound, buttonSoundOptions)
+        run = false
         event.other.x = self.x
         event.other.y = self.y
-        run = false
     end)
     
 end
@@ -166,7 +166,7 @@ function scene:show(event)
         physics.addBody( limit_bottom, "static", { density=1.6, friction=0.5, bounce=0.2 } )
         physics.addBody( limit_Up, "static", { density=1.6, friction=0.5, bounce=0.2 } )
         physics.addBody( obs_detector, "static",{ density=0.5, friction=0.1, bounce=0.4},
-        
+
         { box={ halfWidth=30, halfHeight=60, x=-80, y=60 } },
         { box={ halfWidth=30, halfHeight=60, x=80, y=60 } })
         ovario.collision = collision
