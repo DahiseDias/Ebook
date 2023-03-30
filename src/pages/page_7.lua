@@ -31,6 +31,20 @@ local function onBackPage(self, event)
     end
 end
 
+
+local function onTilt( event )
+    print("onTilt")
+    local xGravity = event.xGravity
+    local zGravity = event.yGravity
+
+    local moveX = xGravity * 10  -- multiplicador para controlar a velocidade de movimento
+    local moveY = -zGravity * 10 -- multiplicador para controlar a velocidade de movimento
+
+    polem.x = polem.x + moveX
+    polem.y = polem.y + moveY
+ 
+end
+
 local function collision(self, event)
     print("collision")
     timer.performWithDelay(1, function()
@@ -133,18 +147,6 @@ end
 
 local force = 10
 
-local function onTilt( event )
-    print("onTilt")
-    local xGravity = event.xGravity
-    local zGravity = event.yGravity
-
-    local moveX = xGravity * 10  -- multiplicador para controlar a velocidade de movimento
-    local moveY = -zGravity * 10 -- multiplicador para controlar a velocidade de movimento
-
-    polem.x = polem.x + moveX
-    polem.y = polem.y + moveY
- 
-end
   
 function scene:show(event)
     local sceneGroup = self.view
