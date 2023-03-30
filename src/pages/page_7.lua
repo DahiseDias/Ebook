@@ -55,16 +55,12 @@ local function collision(self, event)
         event.other.x = self.x
         event.other.y = self.y
         run = false
-        physics.stop()
-        Runtime:removeEventListener( "accelerometer", onTilt )
-    
     end)
     
 end
 
 function scene:create(event)
     physics.start()
-    physics.setGravity( 0, 0 )
     -- physics.setDrawMode("hybrid")
     local sceneGroup = self.view
 
@@ -157,6 +153,7 @@ function scene:show(event)
     
     if (phase == "will") then
         physics.start()
+        physics.setGravity( 0, 0 )
         run = true
         Runtime:addEventListener( "accelerometer", onTilt )
         physics.addBody( ovario, "static",{ density=0.5, friction=0.1, bounce=0.4} )
