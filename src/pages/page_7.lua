@@ -157,6 +157,7 @@ function scene:show(event)
     
     if (phase == "will") then
         physics.start()
+        run = true
         Runtime:addEventListener( "accelerometer", onTilt )
         physics.addBody( ovario, "static",{ density=0.5, friction=0.1, bounce=0.4} )
         physics.addBody( polem, "dynamic",{ density=0.5, friction=0.1, bounce=0.4} )
