@@ -152,10 +152,13 @@ function scene:show(event)
     local phase = event.phase
     
     if (phase == "will") then
+        polem.x = display.contentWidth * 1/2
+        polem.y = 100
         physics.start()
         physics.setGravity( 0, 0 )
         run = true
         Runtime:addEventListener( "accelerometer", onTilt )
+
         physics.addBody( ovario, "static",{ density=0.5, friction=0.1, bounce=0.4} )
         physics.addBody( polem, "dynamic",{ density=0.5, friction=0.1, bounce=0.4} )
         physics.addBody( limit_left, "static", { density=1.6, friction=0.5, bounce=0.2 } )
@@ -163,15 +166,13 @@ function scene:show(event)
         physics.addBody( limit_bottom, "static", { density=1.6, friction=0.5, bounce=0.2 } )
         physics.addBody( limit_Up, "static", { density=1.6, friction=0.5, bounce=0.2 } )
         physics.addBody( obs_detector, "static",{ density=0.5, friction=0.1, bounce=0.4},
+        
         { box={ halfWidth=30, halfHeight=60, x=-80, y=60 } },
         { box={ halfWidth=30, halfHeight=60, x=80, y=60 } })
         ovario.collision = collision
         ovario:addEventListener("collision", ovario)
         
     elseif (phase == "did") then
-        polem.x = display.contentWidth * 1/2
-        polem.y = 100
-        physics.start()
         display.setDefault('background', 95/255, 143/255, 91/255)
         forwardButton.touch = onNextPage
         forwardButton:addEventListener("touch", forwardButton)
