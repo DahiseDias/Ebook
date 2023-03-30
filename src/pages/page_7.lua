@@ -150,6 +150,7 @@ function scene:show(event)
     local phase = event.phase
     
     if (phase == "will") then
+        Runtime:addEventListener( "accelerometer", onTilt )
         physics.addBody( ovario, "static",{ density=0.5, friction=0.1, bounce=0.4} )
         physics.addBody( polem, "dynamic",{ density=0.5, friction=0.1, bounce=0.4} )
         physics.addBody( limit_left, "static", { density=1.6, friction=0.5, bounce=0.2 } )
@@ -171,7 +172,6 @@ function scene:show(event)
         forwardButton:addEventListener("touch", forwardButton)
         backButton.touch = onBackPage
         backButton:addEventListener("touch", backButton)
-        Runtime:addEventListener( "accelerometer", onTilt )
     end
 end
 
@@ -181,9 +181,9 @@ function scene:hide(event)
 
     if (phase == "will") then
         display.setDefault('background', 0, 0, 0)
-        Runtime:removeEventListener( "accelerometer", onTilt )
         forwardButton:removeEventListener("touch", forwardButton)
         backButton:removeEventListener("touch", backButton)
+        Runtime:removeEventListener( "accelerometer", onTilt )
         physics.stop()
     elseif (phase == "did") then
 
