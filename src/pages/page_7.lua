@@ -2,7 +2,9 @@ local composer = require("composer")
 local physics = require("physics")
 local scene = composer.newScene()
 
-local forwardButton,polem, backButton, buttonSound, collision_sound
+local forwardButton,polem, backButton, buttonSound, collision_sound, ovario
+
+local limit_Up, limit_bottom, limit_left, limit_right, obs_detector
 
 local buttonSoundOptions = {
     channel = 1,
@@ -36,7 +38,6 @@ local function collision(self, event)
         event.other.x = self.x
         event.other.y = self.y
         physics.stop()
-        Runtime:removeEventListener( "accelerometer", onTilt )
         polem:setLinearVelocity(0, 0)
     
     end)
@@ -52,41 +53,38 @@ function scene:create(event)
     buttonSound = audio.loadSound("src/assets/sounds/button_click.wav")
     collision_sound = audio.loadSound("src/assets/sounds/level-passed.mp3")
 
-    local limit_left = display.newRect(-40,0, 40,display.contentHeight)
+    limit_left = display.newRect(-40,0, 40,display.contentHeight)
     limit_left.anchorX = 0
     limit_left.anchorY = 0
-    physics.addBody( limit_left, "static", { density=1.6, friction=0.5, bounce=0.2 } )
+    limit_left:setFillColor(95/255, 143/255, 91/255)
     sceneGroup:insert(limit_left)
-
-    local limit_right = display.newRect(display.contentWidth,0, 40,display.contentHeight)
+    
+    limit_right = display.newRect(display.contentWidth,0, 40,display.contentHeight)
     limit_right.anchorX = 0
     limit_right.anchorY = 0
-    physics.addBody( limit_right, "static", { density=1.6, friction=0.5, bounce=0.2 } )
+    limit_right:setFillColor(95/255, 143/255, 91/255)
     sceneGroup:insert(limit_right)
-
-    local limit_bottom = display.newRect(0,display.contentHeight, display.contentWidth, 40)
+    
+    limit_bottom = display.newRect(0,display.contentHeight, display.contentWidth, 40)
     limit_bottom.anchorX = 0
     limit_bottom.anchorY = 0
-    physics.addBody( limit_bottom, "static", { density=1.6, friction=0.5, bounce=0.2 } )
+    limit_bottom:setFillColor(95/255, 143/255, 91/255)
     sceneGroup:insert(limit_bottom)
-
-    local limit_Up = display.newRect(0,-40, display.contentWidth, 40)
+    
+    limit_Up = display.newRect(0,-40, display.contentWidth, 40)
     limit_Up.anchorX = 0
     limit_Up.anchorY = 0
-    physics.addBody( limit_Up, "static", { density=1.6, friction=0.5, bounce=0.2 } )
+    limit_Up:setFillColor(95/255, 143/255, 91/255)
     sceneGroup:insert(limit_Up)
-
+    
     local background = display.newImage(sceneGroup, "src/assets/plantas/ovario_bordas.png")
     background.x = display.contentWidth * 1/2
     background.y = display.contentHeight * 1/2 - 500
     background:scale(3,3)
     sceneGroup:insert(background)
-
-
-    local obs_detector = display.newRect(display.contentWidth * 1/2, display.contentHeight * 1/2 -50, 200, 50)
-    physics.addBody( obs_detector, "static",{ density=0.5, friction=0.1, bounce=0.4},
-    { box={ halfWidth=30, halfHeight=60, x=-80, y=60 } },
-    { box={ halfWidth=30, halfHeight=60, x=80, y=60 } })
+    
+    
+    obs_detector = display.newRect(display.contentWidth * 1/2, display.contentHeight * 1/2 -50, 200, 50)
     obs_detector:setFillColor(95/255, 143/255, 91/255)
     sceneGroup:insert(obs_detector)
 
@@ -95,19 +93,14 @@ function scene:create(event)
     obstaculo.y = display.contentHeight * 1/2
     sceneGroup:insert(obstaculo)
 
-    local ovario = display.newImage(sceneGroup, "src/assets/plantas/ovario.png")
+    ovario = display.newImage(sceneGroup, "src/assets/plantas/ovario.png")
     ovario.x = display.contentWidth * 1/2
     ovario.y = display.contentHeight * 1/2 + 50
     ovario:scale(0.7, 0.7)
-    ovario.collision = collision
-    ovario:addEventListener("collision", ovario)
-    physics.addBody( ovario, "static",{ density=0.5, friction=0.1, bounce=0.4} )
     sceneGroup:insert(ovario)
 
     polem = display.newImage(sceneGroup, "src/assets/plantas/Polem.png")
-
     -- ovario:scale(0.7, 0.7)
-    physics.addBody( polem, "dynamic",{ density=0.5, friction=0.1, bounce=0.4} )
     sceneGroup:insert(polem)
 
     local text = display.newImage(sceneGroup, "src/assets/textos/text_page7.png")
@@ -157,6 +150,17 @@ function scene:show(event)
     local phase = event.phase
     
     if (phase == "will") then
+        physics.addBody( ovario, "static",{ density=0.5, friction=0.1, bounce=0.4} )
+        physics.addBody( polem, "dynamic",{ density=0.5, friction=0.1, bounce=0.4} )
+        physics.addBody( limit_left, "static", { density=1.6, friction=0.5, bounce=0.2 } )
+        physics.addBody( limit_right, "static", { density=1.6, friction=0.5, bounce=0.2 } )
+        physics.addBody( limit_bottom, "static", { density=1.6, friction=0.5, bounce=0.2 } )
+        physics.addBody( limit_Up, "static", { density=1.6, friction=0.5, bounce=0.2 } )
+        physics.addBody( obs_detector, "static",{ density=0.5, friction=0.1, bounce=0.4},
+        { box={ halfWidth=30, halfHeight=60, x=-80, y=60 } },
+        { box={ halfWidth=30, halfHeight=60, x=80, y=60 } })
+        ovario.collision = collision
+        ovario:addEventListener("collision", ovario)
         
     elseif (phase == "did") then
         polem.x = display.contentWidth * 1/2
@@ -177,7 +181,9 @@ function scene:hide(event)
 
     if (phase == "will") then
         display.setDefault('background', 0, 0, 0)
+        Runtime:removeEventListener( "accelerometer", onTilt )
         forwardButton:removeEventListener("touch", forwardButton)
+        backButton:removeEventListener("touch", backButton)
         physics.stop()
     elseif (phase == "did") then
 

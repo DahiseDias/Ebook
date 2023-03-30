@@ -43,6 +43,7 @@ end
 
 
 local function onObjectTouch( self, event )
+    audio.play(buttonSound, buttonSoundOptions)
     if ( event.phase == "began" ) then
         print( "Touch event began on: " .. self.id )
         if self.id == "androceu" or self.id == "text_masc_detector" then
