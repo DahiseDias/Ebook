@@ -38,6 +38,8 @@ local function collision(self, event)
         event.other.x = self.x
         event.other.y = self.y
         polem:setLinearVelocity(0, 0)
+        physics.stop()
+        Runtime:removeEventListener( "accelerometer", onTilt )
     
     end)
     
